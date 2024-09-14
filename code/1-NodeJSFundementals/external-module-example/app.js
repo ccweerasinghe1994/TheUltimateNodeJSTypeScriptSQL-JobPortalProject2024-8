@@ -1,44 +1,14 @@
-const { log } = require("node:console");
-const path = require("node:path");
+const EventEmitter = require("events");
 
-const pathName = "/home/user/docs/file.txt";
-log("---------------------------");
-log(path.basename(pathName));
-log(path.basename(pathName, ".txt"));
-log("---------------------------");
-log(path.dirname(pathName));
-log("---------------------------");
-log(path.extname(pathName));
-log("---------------------------");
-const pathObject = {
-  dir: "/home/user/docs",
-  base: "file.txt",
-};
+const emitter = new EventEmitter();
 
-log(path.format(pathObject));
+emitter.on("greet", (name) => {
+  console.log(`Hello, ${name}`);
+});
 
-log("---------------------------");
-log(path.parse(pathName));
+emitter.on("error", (error) => {
+  console.error(`Error: ${error.message}`);
+});
 
-log("---------------------------");
-log(path.isAbsolute(pathName));
-log("---------------------------");
-log(path.join("/home/user", "docs", "file.txt"));
-log("---------------------------");
-log(path.resolve("docs", "file.txt"));
-log("---------------------------");
-const messyPath = "/home/user/../user/docs//file.txt";
-log(path.normalize(messyPath));
-
-log("---------------------------");
-console.log(path.sep);
-
-log("---------------------------");
-
-// app.js
-
-// const moduleA = require("./moduleA");
-// const moduleB = require("./moduleB");
-
-// console.log(moduleA.getModuleBName()); // Output: Module B
-// console.log(moduleB.getModuleAName()); // Output: undefined
+emitter.emit("greet", "Alice");
+emitter.emit("error", new Error("Something went wrong"));
