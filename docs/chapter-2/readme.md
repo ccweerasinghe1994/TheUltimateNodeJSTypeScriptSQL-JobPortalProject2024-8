@@ -1471,6 +1471,441 @@ By following best practices and being mindful of common pitfalls, you can create
 ---
 
 # 4 - Bult-in Module path
+
+# **Deep Dive into Node.js Built-in `path` Module with Examples**
+
+---
+
+## **Introduction**
+
+The `path` module in Node.js provides utilities for working with file and directory paths. It is a core module, meaning it comes bundled with Node.js and does not require any additional installation. The `path` module offers a variety of functions to manipulate and handle file paths in a cross-platform way, ensuring that your code works consistently across different operating systems like Windows, macOS, and Linux.
+
+As of my knowledge cutoff in October 2023, the latest stable version of Node.js is **v20.x.x**. Node.js **v22.6.0** has not been released yet. However, I will provide a comprehensive explanation of the `path` module based on the latest available documentation, which can be found at [Node.js Official Documentation](https://nodejs.org/docs/latest/api/path.html).
+
+---
+
+## **Table of Contents**
+
+1. [Importing the `path` Module](#1-importing-the-path-module)
+2. [Understanding Paths in Node.js](#2-understanding-paths-in-nodejs)
+3. [Key Methods and Properties](#3-key-methods-and-properties)
+   - [3.1 `path.basename()`](#31-pathbasename)
+   - [3.2 `path.dirname()`](#32-pathdirname)
+   - [3.3 `path.extname()`](#33-pathextname)
+   - [3.4 `path.format()`](#34-pathformat)
+   - [3.5 `path.parse()`](#35-pathparse)
+   - [3.6 `path.isAbsolute()`](#36-pathisabsolute)
+   - [3.7 `path.join()`](#37-pathjoin)
+   - [3.8 `path.resolve()`](#38-pathresolve)
+   - [3.9 `path.normalize()`](#39-pathnormalize)
+   - [3.10 `path.relative()`](#310-pathrelative)
+   - [3.11 `path.sep`, `path.delimiter`, `path.posix`, `path.win32`](#311-pathsep-pathdelimiter-pathposix-pathwin32)
+4. [Platform-Specific Path Handling](#4-platform-specific-path-handling)
+5. [Practical Examples](#5-practical-examples)
+   - [Example 1: File Path Manipulation](#example-1-file-path-manipulation)
+   - [Example 2: Resolving Module Paths](#example-2-resolving-module-paths)
+   - [Example 3: Cross-Platform File Paths](#example-3-cross-platform-file-paths)
+6. [Conclusion](#6-conclusion)
+7. [References](#7-references)
+
+---
+
+## **1. Importing the `path` Module**
+
+To use the `path` module in your Node.js application, you need to import it using the `require` function:
+
+```javascript
+const path = require('path');
+```
+
+This line of code gives you access to all the methods and properties provided by the `path` module.
+
+---
+
+## **2. Understanding Paths in Node.js**
+
+File paths can vary between operating systems. For example:
+
+- **Windows** uses backslashes (`\`) as path separators.
+- **POSIX (Unix, Linux, macOS)** systems use forward slashes (`/`) as path separators.
+
+The `path` module abstracts these differences, allowing developers to write code that is agnostic of the underlying operating system.
+
+---
+
+## **3. Key Methods and Properties**
+
+### **3.1 `path.basename()`**
+
+**Purpose**: Returns the last portion of a path, similar to the Unix `basename` command. It can optionally remove a file extension if provided.
+
+**Syntax**:
+
+```javascript
+path.basename(path[, ext])
+```
+
+- **`path`**: The file path.
+- **`ext`** (optional): The file extension to remove.
+
+**Example**:
+
+```javascript
+const filePath = '/home/user/docs/file.txt';
+
+console.log(path.basename(filePath)); // Output: 'file.txt'
+console.log(path.basename(filePath, '.txt')); // Output: 'file'
+```
+
+### **3.2 `path.dirname()`**
+
+**Purpose**: Returns the directory name of a path, similar to the Unix `dirname` command.
+
+**Syntax**:
+
+```javascript
+path.dirname(path)
+```
+
+**Example**:
+
+```javascript
+const filePath = '/home/user/docs/file.txt';
+
+console.log(path.dirname(filePath)); // Output: '/home/user/docs'
+```
+
+### **3.3 `path.extname()`
+
+**Purpose**: Returns the extension of the path from the last occurrence of the `.` (period) character to the end of the string in the last portion of the path.
+
+**Syntax**:
+
+```javascript
+path.extname(path)
+```
+
+**Example**:
+
+```javascript
+const filePath = '/home/user/docs/file.txt';
+
+console.log(path.extname(filePath)); // Output: '.txt'
+```
+
+### **3.4 `path.format()`**
+
+**Purpose**: Returns a path string from an object. This is the opposite of `path.parse()`.
+
+**Syntax**:
+
+```javascript
+path.format(pathObject)
+```
+
+- **`pathObject`**: An object containing properties like `dir`, `root`, `base`, `name`, and `ext`.
+
+**Example**:
+
+```javascript
+const pathObject = {
+  dir: '/home/user/docs',
+  base: 'file.txt',
+};
+
+console.log(path.format(pathObject)); // Output: '/home/user/docs/file.txt'
+```
+
+### **3.5 `path.parse()`**
+
+**Purpose**: Returns an object whose properties represent significant elements of the path.
+
+**Syntax**:
+
+```javascript
+path.parse(path)
+```
+
+**Example**:
+
+```javascript
+const filePath = '/home/user/docs/file.txt';
+
+const parsedPath = path.parse(filePath);
+
+console.log(parsedPath);
+/*
+Output:
+{
+  root: '/',
+  dir: '/home/user/docs',
+  base: 'file.txt',
+  ext: '.txt',
+  name: 'file'
+}
+*/
+```
+
+### **3.6 `path.isAbsolute()`**
+
+**Purpose**: Determines whether a path is an absolute path.
+
+**Syntax**:
+
+```javascript
+path.isAbsolute(path)
+```
+
+**Example**:
+
+```javascript
+console.log(path.isAbsolute('/home/user')); // Output: true
+console.log(path.isAbsolute('docs/file.txt')); // Output: false
+```
+
+### **3.7 `path.join()`**
+
+**Purpose**: Joins all given path segments together using the platform-specific separator (`/` on POSIX and `\` on Windows).
+
+**Syntax**:
+
+```javascript
+path.join([...paths])
+```
+
+**Example**:
+
+```javascript
+const joinedPath = path.join('/home', 'user', 'docs', 'file.txt');
+
+console.log(joinedPath); // Output: '/home/user/docs/file.txt'
+```
+
+**Note**: `path.join()` will normalize the resulting path.
+
+### **3.8 `path.resolve()`**
+
+**Purpose**: Resolves a sequence of paths into an absolute path.
+
+**Syntax**:
+
+```javascript
+path.resolve([...paths])
+```
+
+**Example**:
+
+```javascript
+console.log(path.resolve('docs', 'file.txt'));
+// Output: '/current/working/directory/docs/file.txt'
+
+console.log(path.resolve('/home/user', 'docs', 'file.txt'));
+// Output: '/home/user/docs/file.txt'
+```
+
+**Explanation**:
+
+- If no path segments are absolute, `path.resolve()` resolves the paths relative to the current working directory.
+- If a path segment is absolute, all preceding paths are discarded, and resolution continues from the absolute path.
+
+### **3.9 `path.normalize()`**
+
+**Purpose**: Normalizes a path by resolving `..` and `.` segments and correcting separators.
+
+**Syntax**:
+
+```javascript
+path.normalize(path)
+```
+
+**Example**:
+
+```javascript
+const messyPath = '/home/user/../user/docs//file.txt';
+
+console.log(path.normalize(messyPath)); // Output: '/home/user/docs/file.txt'
+```
+
+### **3.10 `path.relative()`**
+
+**Purpose**: Returns the relative path from one directory to another.
+
+**Syntax**:
+
+```javascript
+path.relative(from, to)
+```
+
+**Example**:
+
+```javascript
+const from = '/home/user/docs';
+const to = '/home/user/images';
+
+console.log(path.relative(from, to)); // Output: '../images'
+```
+
+### **3.11 `path.sep`, `path.delimiter`, `path.posix`, `path.win32`**
+
+- **`path.sep`**: The platform-specific path segment separator.
+
+  ```javascript
+  console.log(path.sep); // Output: '/' on POSIX, '\' on Windows
+  ```
+
+- **`path.delimiter`**: The platform-specific path delimiter (used in environment variables like `PATH`).
+
+  ```javascript
+  console.log(path.delimiter); // Output: ':' on POSIX, ';' on Windows
+  ```
+
+- **`path.posix`** and **`path.win32`**: Provide path methods specific to POSIX and Windows, respectively.
+
+  **Example**:
+
+  ```javascript
+  console.log(path.posix.join('home', 'user')); // Output: 'home/user'
+  console.log(path.win32.join('home', 'user')); // Output: 'home\user'
+  ```
+
+---
+
+## **4. Platform-Specific Path Handling**
+
+While the default `path` methods use the platform-specific separator and format, you might need to handle paths in a platform-agnostic way or target a specific platform.
+
+**Using `path.posix` and `path.win32`:**
+
+- **`path.posix`**: Methods that always use POSIX semantics (forward slashes `/`).
+- **`path.win32`**: Methods that always use Windows semantics (backslashes `\`).
+
+**Example**:
+
+```javascript
+const posixPath = path.posix.join('home', 'user', 'docs');
+console.log(posixPath); // Output: 'home/user/docs'
+
+const winPath = path.win32.join('home', 'user', 'docs');
+console.log(winPath); // Output: 'home\user\docs'
+```
+
+---
+
+## **5. Practical Examples**
+
+### **Example 1: File Path Manipulation**
+
+**Scenario**: You have a file path, and you need to extract the file name without extension, its directory, and change its extension.
+
+**Code**:
+
+```javascript
+const path = require('path');
+
+const filePath = '/var/www/site/public/index.html';
+
+// Extract file name without extension
+const fileName = path.basename(filePath, path.extname(filePath));
+console.log(`File Name: ${fileName}`); // Output: 'index'
+
+// Get the directory name
+const dirName = path.dirname(filePath);
+console.log(`Directory: ${dirName}`); // Output: '/var/www/site/public'
+
+// Change the extension to .php
+const newFilePath = path.format({
+  dir: dirName,
+  name: fileName,
+  ext: '.php',
+});
+
+console.log(`New File Path: ${newFilePath}`); // Output: '/var/www/site/public/index.php'
+```
+
+### **Example 2: Resolving Module Paths**
+
+**Scenario**: You want to require a module located in a relative path, ensuring the path is correct regardless of the current working directory.
+
+**Code**:
+
+```javascript
+const path = require('path');
+
+// Assuming your project structure is:
+// - project/
+//   - lib/
+//     - utils.js
+//   - app.js
+
+// In app.js
+const utilsPath = path.resolve(__dirname, 'lib', 'utils.js');
+const utils = require(utilsPath);
+
+utils.doSomething();
+```
+
+**Explanation**:
+
+- `__dirname` is a global variable that contains the directory name of the current module.
+- `path.resolve()` constructs an absolute path to `utils.js`.
+
+### **Example 3: Cross-Platform File Paths**
+
+**Scenario**: You are developing a tool that manipulates file paths, and you want it to work consistently across different operating systems.
+
+**Code**:
+
+```javascript
+const path = require('path');
+
+// A function that normalizes and joins paths
+function getFilePath(folder, file) {
+  return path.normalize(path.join(folder, file));
+}
+
+// Example usage
+const folder = 'data';
+const file = 'reports\\2023\\summary.txt'; // Note the Windows-style backslashes
+
+const filePath = getFilePath(folder, file);
+
+console.log(`File Path: ${filePath}`);
+// On POSIX Output: 'data/reports/2023/summary.txt'
+// On Windows Output: 'data\\reports\\2023\\summary.txt'
+```
+
+**Explanation**:
+
+- `path.join()` concatenates the folder and file, handling different separators.
+- `path.normalize()` resolves any inconsistencies in separators and redundant parts.
+
+---
+
+## **6. Conclusion**
+
+The Node.js `path` module is an essential tool for handling file system paths in a consistent and cross-platform manner. By utilizing the various methods provided, developers can manipulate and resolve paths without worrying about the underlying operating system differences.
+
+Understanding the `path` module enables you to:
+
+- Safely concatenate paths.
+- Extract information from file paths.
+- Resolve absolute and relative paths.
+- Write code that works seamlessly across different platforms.
+
+Remember to refer to the official Node.js documentation for the most up-to-date information and additional methods available in the `path` module.
+
+---
+
+## **References**
+
+- **Node.js Official Documentation**: [Path Module](https://nodejs.org/docs/latest/api/path.html)
+- **Node.js File System Guide**: Understanding file paths and operations in Node.js.
+- **Cross-Platform Path Handling**: Best practices for writing platform-agnostic code.
+
+---
+
+**Feel free to ask if you have any questions or need further clarification on the `path` module in Node.js!**
+
 # 5 - Bult-in Module fs
 # 6 - Benefits of Asynchrony
 # 7 - Event Emitter
