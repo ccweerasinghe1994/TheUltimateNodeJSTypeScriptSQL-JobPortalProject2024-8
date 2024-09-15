@@ -434,11 +434,290 @@ Now, if you visit `http://localhost:3000/data`, you will receive a JSON response
 ### **Conclusion**
 
 This simple Express.js server responds to HTTP `GET` requests, but you can expand it to handle many other types of requests, serve static files, use middleware for authentication, logging, and much more.
+
+
+```js
+const express = require('express')
+const app = express()
+const port = 3000
+
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+```
+
 ## 4 - Response in express.js
 
-## 5 - Explore HTTP method in express.js
+```js
+const express = require("express");
+const app = express();
+const port = 3000;
 
+const products = {
+  id: 111,
+  name: "product1",
+  price: 100,
+};
+
+app.get("/", (req, res) => {
+  res.status(200).send(products);
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+```
+
+## 5 - Explore HTTP method in express.js
+```js
+const express = require("express");
+const app = express();
+const port = 3000;
+const path = require("node:path");
+const fs = require("node:fs");
+
+const products = {
+  id: 111,
+  name: "product1",
+  price: 100,
+};
+
+app.get("/", (req, res) => {
+  res.status(200).send(products);
+});
+
+app.get("/about", async (req, res) => {
+  const aboutPageHTML = path.join(__dirname, "static", "aboutPage.html");
+  fs.readFile(aboutPageHTML, "utf8", (err, html) => {
+    if (err) {
+      return res.status(500).send("Sorry, something went wrong");
+    }
+    return res.status(200).send(html);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+```
 ## 6 - Explore parts of URL
+To access **query parameters** in Express.js, you can use the **`req.query`** object, which contains the query string parameters sent by the client in the URL. 
+
+Query parameters are typically passed after the question mark (`?`) in a URL. For example, in the URL:
+
+```
+http://localhost:3000/search?term=express&category=node
+```
+
+- `term` is the name of the first query parameter, and `express` is its value.
+- `category` is the name of the second query parameter, and `node` is its value.
+
+### **Example of Accessing Query Parameters in Express.js:**
+
+Here’s how you can access these parameters in an Express route:
+
+#### **1. Create a Route that Handles Query Parameters**
+
+In your **Express.js** server file (e.g., `server.js`), define a route that listens for incoming requests with query parameters.
+
+```js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route to handle query parameters
+app.get('/search', (req, res) => {
+  // Access query parameters using req.query
+  const searchTerm = req.query.term;
+  const category = req.query.category;
+  
+  res.send(`Search term: ${searchTerm}, Category: ${category}`);
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+```
+
+#### **2. Running the Server**
+
+Start the server with the command:
+
+```bash
+node server.js
+```
+
+Now, if you visit `http://localhost:3000/search?term=express&category=node` in your browser, the server will respond with:
+
+```
+Search term: express, Category: node
+```
+
+### **Explanation:**
+
+- **`req.query`**: This is an object that contains all the query string parameters. In this example, `req.query.term` refers to the value of the `term` parameter (`express`), and `req.query.category` refers to the value of the `category` parameter (`node`).
+
+- **`app.get('/search', ...)`**: This route listens for `GET` requests made to the `/search` endpoint.
+
+### **Handling Multiple Query Parameters**
+
+If the URL contains multiple query parameters, `req.query` will have all of them as key-value pairs. For example, for a URL like:
+
+```
+http://localhost:3000/search?term=express&category=node&sort=asc
+```
+
+The `req.query` object will be:
+
+```js
+{
+  term: 'express',
+  category: 'node',
+  sort: 'asc'
+}
+```
+
+You can access each parameter using `req.query.<param_name>`.
+
+### **Conclusion**
+
+Using `req.query`, you can easily access and manipulate query parameters in an Express.js application. This is useful for handling search requests, filters, and other forms of data that are passed via the URL.
+
+In **Express.js**, you can access **route parameters** (also known as URL parameters) using the **`req.params`** object. Route parameters are part of the URL and are used to capture dynamic values that are passed as part of the URL path.
+
+Here’s how you can access route parameters using `req.params`.
+
+### **Route Parameters Example**
+
+If you define a route with a dynamic segment like `:id`, that segment can capture a value from the URL and make it available via the `req.params` object.
+
+### **Example of Accessing Route Parameters in Express.js:**
+
+In your **Express.js** server file (e.g., `server.js`), define a route that listens for incoming requests with dynamic route parameters.
+
+#### **1. Creating a Route with Parameters**
+
+```js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Route with a dynamic parameter ':id'
+app.get('/users/:id', (req, res) => {
+  // Access the 'id' parameter using req.params
+  const userId = req.params.id;
+  
+  res.send(`User ID: ${userId}`);
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+```
+
+#### **2. Running the Server**
+
+Start the server using the command:
+
+```bash
+node server.js
+```
+
+#### **3. Accessing the Route with a Parameter**
+
+Now, if you visit `http://localhost:3000/users/123` in your browser, the server will respond with:
+
+```
+User ID: 123
+```
+
+The value `123` is passed as the `id` parameter, and it's accessed via `req.params.id`.
+
+### **Explanation:**
+
+- **`app.get('/users/:id', ...)`**: This route is defined with a dynamic segment `:id`. The `:id` portion of the URL acts as a placeholder for any value that can be captured from the URL.
+  
+- **`req.params`**: This is an object that contains any route parameters. In this example, `req.params.id` refers to the value of the `id` parameter in the URL (`123` in this case).
+
+### **Multiple Route Parameters Example**
+
+You can define multiple route parameters. For example:
+
+```js
+app.get('/users/:id/posts/:postId', (req, res) => {
+  const userId = req.params.id;
+  const postId = req.params.postId;
+  
+  res.send(`User ID: ${userId}, Post ID: ${postId}`);
+});
+```
+
+Now, if you visit `http://localhost:3000/users/123/posts/456`, the server will respond with:
+
+```
+User ID: 123, Post ID: 456
+```
+
+In this case:
+- `req.params.id` is `123`
+- `req.params.postId` is `456`
+
+### **Conclusion**
+
+- **`req.params`** allows you to access dynamic values in the URL that are specified as route parameters.
+- Route parameters are defined by using a colon (`:`) followed by the parameter name in the route definition.
+- This is commonly used in applications to handle things like user IDs, product IDs, or other dynamic values passed in the URL.
+
+You can explore more details about handling route parameters in the [official Express documentation](https://expressjs.com/en/5x/api.html).
+
+```js
+const express = require("express");
+const app = express();
+const port = 3000;
+const path = require("node:path");
+const fs = require("node:fs");
+
+const products = {
+  id: 111,
+  name: "product1",
+  price: 100,
+};
+
+app.get("/", (req, res) => {
+  res.status(200).send(products);
+});
+
+app.get("/products/:produtId", (req, res) => {
+  const products = parseInt(req.params.produtId);
+
+  if (isNaN(products)) {
+    return res.status(400).send("Invalid product id");
+  }
+
+  res.status(200).send(`Product id is ${products}`);
+});
+
+app.get("/about", async (req, res) => {
+  const aboutPageHTML = path.join(__dirname, "static", "aboutPage.html");
+  fs.readFile(aboutPageHTML, "utf8", (err, html) => {
+    if (err) {
+      return res.status(500).send("Sorry, something went wrong");
+    }
+    return res.status(200).send(html);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+```
 
 ## 7 - What is a RESTRESTFUL API
 
