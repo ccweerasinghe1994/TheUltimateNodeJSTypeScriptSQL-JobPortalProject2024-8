@@ -1139,10 +1139,669 @@ app.delete("/products/:productId", (req, res) => {
 });
 ```
 ## 13 - Middleware
+**Middleware** in **Express.js** refers to functions that are executed during the request-response cycle in an application. Middleware functions can modify the request object (`req`), the response object (`res`), and control the flow by calling the `next()` function. They are used to perform tasks such as logging, authentication, error handling, parsing request bodies, and more.
 
+Middleware functions can be executed before sending a response to the client, or in some cases, after sending the response.
+
+### **Types of Middleware in Express.js:**
+1. **Application-level Middleware**: Bound to an instance of `app` and applies to all routes or specific routes.
+2. **Router-level Middleware**: Bound to an instance of `express.Router()`.
+3. **Built-in Middleware**: Middleware provided by Express.js such as `express.json()` and `express.urlencoded()`.
+4. **Third-party Middleware**: Middleware provided by third-party libraries, such as `morgan`, `cors`, etc.
+
+---
+
+### **1. Application-Level Middleware**
+
+Application-level middleware is bound to an instance of the `app` object using the `app.use()` or `app.METHOD()` functions, where `METHOD` is an HTTP method such as `GET`, `POST`, etc.
+
+#### **Example: Application-Level Middleware**
+
+```js
+const express = require('express');
+const app = express();
+
+// A middleware function that logs the request method and URL
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();  // Pass control to the next middleware function
+});
+
+// Define a route
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- The middleware logs the HTTP method and the URL for each incoming request.
+- The `next()` function passes control to the next middleware in the stack (in this case, the route handler for the root path `/`).
+
+---
+
+### **2. Router-Level Middleware**
+
+Router-level middleware works in the same way as application-level middleware but is bound to an instance of `express.Router()`. This allows you to organize middleware into modular routes.
+
+#### **Example: Router-Level Middleware**
+
+```js
+const express = require('express');
+const app = express();
+const router = express.Router();
+
+// A middleware function specific to the router
+router.use((req, res, next) => {
+  console.log('Request URL:', req.originalUrl);
+  next();
+});
+
+// Define a route within the router
+router.get('/user/:id', (req, res) => {
+  res.send(`User ID: ${req.params.id}`);
+});
+
+// Use the router in the application
+app.use('/api', router);
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- The middleware logs the original request URL when accessing routes defined in the router.
+- The router is mounted on the `/api` path, so the route `/api/user/:id` will be handled by the router.
+
+---
+
+### **3. Built-in Middleware**
+
+Express.js comes with some built-in middleware that can be used out of the box, such as:
+
+- **`express.json()`**: Parses incoming requests with JSON payloads.
+- **`express.urlencoded()`**: Parses incoming requests with URL-encoded payloads.
+
+#### **Example: Using Built-in Middleware**
+
+```js
+const express = require('express');
+const app = express();
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Middleware to parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
+
+// Route to handle POST requests
+app.post('/submit', (req, res) => {
+  res.send(`Received data: ${JSON.stringify(req.body)}`);
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- **`express.json()`** parses incoming requests with JSON payloads, allowing you to access `req.body` in a route.
+- **`express.urlencoded()`** parses URL-encoded data (like form submissions).
+
+---
+
+### **4. Third-Party Middleware**
+
+Third-party middleware extends the functionality of Express by adding features like logging, security, and request handling.
+
+- **`morgan`**: A popular logging middleware that logs HTTP requests.
+- **`cors`**: A middleware that enables Cross-Origin Resource Sharing.
+
+#### **Example: Using `morgan` (Third-Party Middleware)**
+
+```bash
+npm install morgan
+```
+
+```js
+const express = require('express');
+const morgan = require('morgan');
+const app = express();
+
+// Use morgan middleware to log HTTP requests
+app.use(morgan('combined'));
+
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- **`morgan`** logs incoming HTTP requests using the "combined" format, which includes detailed information like IP address, request method, status code, and more.
+
+---
+
+### **5. Error-Handling Middleware**
+
+Error-handling middleware in Express is defined similarly to regular middleware but has four arguments: `(err, req, res, next)`. This middleware is used to handle errors in the application.
+
+#### **Example: Error-Handling Middleware**
+
+```js
+const express = require('express');
+const app = express();
+
+// Define a route that throws an error
+app.get('/', (req, res) => {
+  throw new Error('Something went wrong!');
+});
+
+// Error-handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Internal Server Error');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- If an error occurs (e.g., throwing an error in the `/` route), the error-handling middleware catches it and sends a 500 status response.
+- **`err.stack`** provides a stack trace for debugging purposes.
+
+---
+
+### **Conclusion**
+
+Middleware in Express.js is a powerful concept that allows you to handle the request-response cycle at various stages, making it easier to implement logging, authentication, input validation, and error handling. It can be used globally for the entire application, within specific routes, or even via third-party libraries to extend the functionality of your Express application.
+
+You can explore more details about middleware in the [Express.js official documentation](https://expressjs.com/en/5x/api.html).
 ## 14 - Model View Controller (MVC)
+The **Model-View-Controller (MVC)** architecture is a software design pattern that separates the application into three interconnected components: **Model**, **View**, and **Controller**. This separation helps in organizing code, improving maintainability, scalability, and reusability, especially for larger web applications.
 
+When applied to **Node.js** (v22.6.0) and **Express.js**, the MVC pattern becomes highly effective for building web applications. In this context:
+
+- **Model**: Manages the data, business logic, and rules of the application.
+- **View**: Displays the user interface and data to the user.
+- **Controller**: Handles input from the user, processes it, and updates the Model or View accordingly.
+
+### **Understanding the MVC Components**
+
+1. **Model**:
+   - The **Model** is responsible for managing the data, whether it's stored in a database or elsewhere. It interacts with the database and handles all the data-related operations (e.g., fetching, updating, deleting).
+   
+2. **View**:
+   - The **View** is the user interface of the application. In a web context, the View is typically rendered HTML or other templating formats like **EJS** or **Pug**.
+   
+3. **Controller**:
+   - The **Controller** processes user input (such as HTTP requests), communicates with the Model to manipulate data, and updates the View to reflect the data changes.
+
+---
+
+### **Implementing MVC in Node.js and Express**
+
+Let’s walk through setting up an **MVC architecture** using **Node.js v22.6.0** and **Express.js**.
+
+#### **Step-by-Step Example:**
+
+1. **Setting Up the Project**
+
+First, create a new Node.js project:
+
+```bash
+mkdir mvc-example
+cd mvc-example
+npm init -y
+npm install express ejs
+```
+
+2. **Project Structure**
+
+Here’s an example of how the directory structure should look:
+
+```
+mvc-example/
+│
+├── controllers/       # Holds the controllers
+│   └── userController.js
+│
+├── models/            # Holds the models
+│   └── userModel.js
+│
+├── views/             # Holds the views (e.g., EJS templates)
+│   └── user.ejs
+│
+├── routes/            # Holds the routes
+│   └── userRoutes.js
+│
+├── app.js             # Main server file
+└── package.json
+```
+
+---
+
+### **1. The Model (userModel.js)**
+
+The **Model** is where we define how the data is managed. For simplicity, we'll use an in-memory JavaScript object to represent user data, but in a real-world scenario, you'd interact with a database (e.g., MongoDB or MySQL).
+
+Create `models/userModel.js`:
+
+```js
+// userModel.js
+const users = [
+  { id: 1, name: 'John Doe', email: 'john@example.com' },
+  { id: 2, name: 'Jane Doe', email: 'jane@example.com' },
+];
+
+// Get all users
+const getUsers = () => {
+  return users;
+};
+
+// Find a user by ID
+const findUserById = (id) => {
+  return users.find(user => user.id === parseInt(id));
+};
+
+module.exports = {
+  getUsers,
+  findUserById
+};
+```
+
+In this example:
+- **`getUsers()`**: Returns all users.
+- **`findUserById(id)`**: Finds a user by their `id`.
+
+---
+
+### **2. The Controller (userController.js)**
+
+The **Controller** handles requests from the client, interacts with the Model, and sends the response back to the client or renders a View.
+
+Create `controllers/userController.js`:
+
+```js
+// userController.js
+const userModel = require('../models/userModel');
+
+// Controller function to handle getting all users
+const getAllUsers = (req, res) => {
+  const users = userModel.getUsers();
+  res.render('user', { users });
+};
+
+// Controller function to handle getting a specific user by ID
+const getUserById = (req, res) => {
+  const user = userModel.findUserById(req.params.id);
+  if (user) {
+    res.render('user', { users: [user] });
+  } else {
+    res.status(404).send('User not found');
+  }
+};
+
+module.exports = {
+  getAllUsers,
+  getUserById
+};
+```
+
+In this example:
+- **`getAllUsers()`**: Retrieves all users from the Model and passes them to the View (`user.ejs`).
+- **`getUserById()`**: Retrieves a user by `id` and renders the View.
+
+---
+
+### **3. The View (user.ejs)**
+
+The **View** is responsible for displaying the data to the user. In this example, we'll use **EJS** as our templating engine.
+
+Create `views/user.ejs`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User List</title>
+</head>
+<body>
+  <h1>User List</h1>
+  <ul>
+    <% users.forEach(user => { %>
+      <li><%= user.name %> - <%= user.email %></li>
+    <% }) %>
+  </ul>
+</body>
+</html>
+```
+
+In this example:
+- **`users`** is passed from the Controller to the View and is used to dynamically display the user data.
+
+---
+
+### **4. The Routes (userRoutes.js)**
+
+The **Routes** file defines the URL paths and maps them to the appropriate Controller functions.
+
+Create `routes/userRoutes.js`:
+
+```js
+// userRoutes.js
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/userController');
+
+// Route for getting all users
+router.get('/users', userController.getAllUsers);
+
+// Route for getting a specific user by ID
+router.get('/users/:id', userController.getUserById);
+
+module.exports = router;
+```
+
+In this example:
+- **`/users`**: Calls `getAllUsers()` from the Controller.
+- **`/users/:id`**: Calls `getUserById()` from the Controller when a user ID is passed in the URL.
+
+---
+
+### **5. The Application (app.js)**
+
+Finally, we wire everything up in the main application file (`app.js`).
+
+Create `app.js`:
+
+```js
+const express = require('express');
+const app = express();
+const userRoutes = require('./routes/userRoutes');
+
+// Set up EJS as the templating engine
+app.set('view engine', 'ejs');
+
+// Use user routes
+app.use(userRoutes);
+
+// Start the server
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+```
+
+In this example:
+- **EJS** is set as the view engine using `app.set('view engine', 'ejs')`.
+- **userRoutes** is imported and used to handle the `/users` routes.
+
+---
+
+### **6. Running the Application**
+
+To run the application:
+
+```bash
+node app.js
+```
+
+Navigate to `http://localhost:3000/users` to see the list of users, or go to `http://localhost:3000/users/1` to get a specific user by their ID.
+
+---
+
+### **Benefits of Using MVC in Express.js**
+
+1. **Separation of Concerns**: By separating your application into Models, Views, and Controllers, each part of the application can be developed and maintained independently, leading to better organization.
+   
+2. **Scalability**: As the application grows, it's easier to scale individual components (e.g., you can add new controllers or models without affecting other parts of the app).
+   
+3. **Reusability**: Since the Controller separates business logic from the View, you can reuse business logic across different Views or even different applications.
+   
+4. **Maintainability**: MVC enforces a clean structure, making the code easier to maintain and debug.
+
+---
+
+### **Conclusion**
+
+The **MVC architecture** is an effective pattern for organizing your **Express.js** applications, making them more modular, scalable, and easier to maintain. By separating the responsibilities into **Models** (for data), **Views** (for presentation), and **Controllers** (for request handling), you can build more robust and clean applications.
+
+For more information on the **MVC pattern** or further details on the API used in **Express.js**, you can refer to the [Express API documentation](https://expressjs.com/en/5x/api.html) and the [Node.js v22.6.0 documentation](https://nodejs.org/docs/latest/api/).
 ## 15 - Refactor code to MVC
+![alt text](image.png)
+
+```js
+const express = require("express");
+const app = express();
+const port = 3000;
+
+const {
+  getAllProducts,
+  getProductsById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} = require("./controllers/product.controller");
+
+app.get("/products", getAllProducts);
+app.get("/products/:produtId", getProductsById);
+app.post("/products", createProduct);
+app.put("/products/:productId", updateProduct);
+app.delete("/products/:productId", deleteProduct);
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+```
 
 ## 16 - Router in express.js
+```js
+const express = require("express");
+const {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductsById,
+  updateProduct,
+} = require("../controllers/product.controller");
 
+
+const Router = express.Router();
+
+
+Router.get("/", getAllProducts);
+Router.get("/:produtId", getProductsById);
+Router.post("", createProduct);
+Router.put("/:productId", updateProduct);
+Router.delete("/:productId", deleteProduct);
+module.exports = Router;
+```
+```js
+const express = require("express");
+const app = express();
+const port = 3000;
+const productRouter = require("./routes/product.route");
+
+app.use("/products", productRouter);
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});
+
+```
+In **Express.js**, a **Router** is a modular, mini version of an Express application that handles routing and middleware logic. It allows you to organize routes into separate files or modules to keep your codebase clean and manageable, especially for large applications. Each **Router** instance can contain middleware, route handlers, and sub-routers.
+
+### **What is Express Router?**
+
+- A **Router** instance is an isolated instance of middleware and routes. You can think of it as a "mini application" capable of performing middleware operations and defining routes.
+- By using **Router**, you can separate route definitions and middleware into individual modules and then combine them in the main application.
+
+---
+
+### **Basic Syntax for Using Express Router**
+
+```js
+const express = require('express');
+const router = express.Router();
+
+// Define routes
+router.get('/users', (req, res) => {
+  res.send('User list');
+});
+
+router.post('/users', (req, res) => {
+  res.send('Create a new user');
+});
+
+module.exports = router;
+```
+
+### **How to Use Express Router**
+
+1. **Create a Router Module**: You define routes and middleware in a module using `express.Router()`.
+2. **Import and Use the Router**: You then import the router module into your main Express application using `app.use()`.
+
+---
+
+### **Example of Using Express Router**
+
+#### 1. Create a Router Module (`routes/userRoutes.js`):
+
+```js
+// routes/userRoutes.js
+const express = require('express');
+const router = express.Router();
+
+// Define routes for the user resource
+router.get('/', (req, res) => {
+  res.send('List of users');
+});
+
+router.post('/', (req, res) => {
+  res.send('Create a new user');
+});
+
+router.get('/:id', (req, res) => {
+  res.send(`Get user with ID: ${req.params.id}`);
+});
+
+router.put('/:id', (req, res) => {
+  res.send(`Update user with ID: ${req.params.id}`);
+});
+
+router.delete('/:id', (req, res) => {
+  res.send(`Delete user with ID: ${req.params.id}`);
+});
+
+module.exports = router;
+```
+
+#### 2. Use the Router in the Main Application (`app.js`):
+
+```js
+// app.js
+const express = require('express');
+const app = express();
+const userRoutes = require('./routes/userRoutes');
+
+// Use the user routes for the '/users' path
+app.use('/users', userRoutes);
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});
+```
+
+In this example:
+- We define routes for user operations (GET, POST, PUT, DELETE) in the `userRoutes.js` file using `express.Router()`.
+- The routes are mounted on the `/users` path in the main app using `app.use('/users', userRoutes)`.
+
+When visiting `http://localhost:3000/users`, you will hit the corresponding route handlers defined in the router module.
+
+---
+
+### **Router Middleware**
+
+Routers can also use middleware, just like the main app. Middleware functions in routers behave in the same way as middleware functions in the main app.
+
+#### **Example: Using Middleware in a Router**
+
+```js
+// routes/userRoutes.js
+const express = require('express');
+const router = express.Router();
+
+// Middleware that logs the request method and URL
+router.use((req, res, next) => {
+  console.log(`${req.method} request to ${req.url}`);
+  next();
+});
+
+router.get('/', (req, res) => {
+  res.send('List of users');
+});
+
+module.exports = router;
+```
+
+Here, the middleware logs the request method and URL whenever a request is made to the `/users` route.
+
+---
+
+### **Nesting Routers**
+
+You can also **nest routers** to create sub-routers for more complex route structures.
+
+#### **Example: Nesting Routers**
+
+```js
+// routes/adminRoutes.js
+const express = require('express');
+const router = express.Router();
+
+// Admin route
+router.get('/', (req, res) => {
+  res.send('Admin dashboard');
+});
+
+module.exports = router;
+
+// routes/userRoutes.js
+const express = require('express');
+const router = express.Router();
+const adminRoutes = require('./adminRoutes');
+
+// Nested routes for admin
+router.use('/admin', adminRoutes);
+
+router.get('/', (req, res) => {
+  res.send('User dashboard');
+});
+
+module.exports = router;
+```
+
+In this example:
+- We have a separate router for admin routes (`adminRoutes.js`), which is mounted on the `/admin` path within the user router.
+- When you visit `/users/admin`, it will route the request to the `adminRoutes` router.
+
+---
+
+### **Conclusion**
+
+- **Express Router** is a powerful feature that allows you to organize your routes and middleware into modular, reusable components.
+- It helps keep your application clean and organized, especially as your project grows.
+- You can create separate route files for different features or resources (e.g., users, products) and mount them in the main application using `app.use()`.
+
+For more detailed information on how to use the **Router** in **Express.js**, you can refer to the official [Express.js Router documentation](https://expressjs.com/en/5x/api.html#router).
