@@ -720,17 +720,424 @@ app.listen(port, () => {
 ```
 
 ## 7 - What is a RESTRESTFUL API
+A **RESTful API** (Representational State Transfer API) is an architectural style for designing networked applications, where the API interacts with resources (data) on a server using standard HTTP methods. It allows communication between clients (such as browsers or mobile apps) and servers, typically over the web.
 
+### **What is REST?**
+
+**REST** (Representational State Transfer) is an architectural style for designing distributed systems and networked applications. It was introduced by Roy Fielding in his doctoral dissertation in 2000. REST is based on a set of guidelines and principles for building scalable, stateless, and easy-to-use web services.
+
+A **RESTful API** is simply an API that adheres to the principles of REST.
+
+### **Key Principles of REST:**
+1. **Stateless**: Each request from the client to the server must contain all the necessary information to understand and process the request. The server doesn’t store the state of the client between requests. This makes RESTful APIs scalable.
+   
+2. **Client-Server Architecture**: The client and the server are separate entities. The client is responsible for the user interface, and the server handles the backend and data processing. This separation allows them to evolve independently.
+   
+3. **Uniform Interface**: REST relies on a uniform way to interact with resources. All interactions are done using standard HTTP methods like GET, POST, PUT, DELETE, etc., which ensures simplicity and consistency.
+
+4. **Resource Representation**: Resources (data or objects) are represented as URLs or URIs (Uniform Resource Identifiers). Each resource has a unique identifier, and it is accessed via a URL.
+
+5. **Representation of Resources**: REST uses standard formats like **JSON** or **XML** to represent resources. The client can request a specific format using the HTTP headers, typically through `Content-Type` or `Accept`.
+
+6. **Cacheable**: Responses from the server should be cacheable, allowing the client to reduce server load and improve performance by caching frequently accessed resources.
+
+7. **Layered System**: The client does not need to know whether it is communicating directly with the server or through intermediaries, such as proxies or gateways, which adds scalability and security to the system.
+
+---
+
+### **HTTP Methods in RESTful APIs**
+
+In RESTful APIs, **HTTP methods** are used to perform operations on resources. Each method corresponds to a specific operation:
+
+1. **GET**: 
+   - Retrieves data from the server.
+   - It’s safe and idempotent (does not modify resources and can be called multiple times without changing the result).
+   
+   **Example**: 
+   ```http
+   GET /users
+   GET /users/123
+   ```
+
+2. **POST**: 
+   - Creates a new resource on the server.
+   - The request body contains the data for the new resource.
+   
+   **Example**: 
+   ```http
+   POST /users
+   ```
+
+3. **PUT**: 
+   - Updates an existing resource on the server or creates one if it doesn’t exist.
+   
+   **Example**: 
+   ```http
+   PUT /users/123
+   ```
+
+4. **PATCH**: 
+   - Partially updates a resource on the server.
+   
+   **Example**: 
+   ```http
+   PATCH /users/123
+   ```
+
+5. **DELETE**: 
+   - Deletes a resource on the server.
+   
+   **Example**: 
+   ```http
+   DELETE /users/123
+   ```
+
+---
+
+### **Example of a RESTful API**
+
+Consider a **User Management System** where you can manage user data through an API. The API allows the client to perform operations such as creating, reading, updating, and deleting user data.
+
+Here’s a breakdown of how RESTful API requests might look:
+
+1. **GET** (Retrieve all users):
+   ```http
+   GET /users
+   ```
+   **Response**:
+   ```json
+   [
+     { "id": 1, "name": "John Doe" },
+     { "id": 2, "name": "Jane Smith" }
+   ]
+   ```
+
+2. **GET** (Retrieve a single user by ID):
+   ```http
+   GET /users/1
+   ```
+   **Response**:
+   ```json
+   { "id": 1, "name": "John Doe" }
+   ```
+
+3. **POST** (Create a new user):
+   ```http
+   POST /users
+   ```
+   **Request Body**:
+   ```json
+   { "name": "New User" }
+   ```
+
+4. **PUT** (Update an existing user):
+   ```http
+   PUT /users/1
+   ```
+   **Request Body**:
+   ```json
+   { "name": "Updated User" }
+   ```
+
+5. **DELETE** (Delete a user):
+   ```http
+   DELETE /users/1
+   ```
+
+---
+
+### **Benefits of RESTful APIs:**
+
+1. **Scalability**: The stateless nature of REST makes it easy to scale, as each request contains all the necessary information.
+   
+2. **Simplicity**: REST uses standard HTTP methods and is easy to understand and implement.
+   
+3. **Performance**: RESTful APIs can leverage caching mechanisms, reducing the server’s workload and improving performance.
+
+4. **Flexibility**: Clients can request different formats (e.g., JSON, XML) for the same resource, allowing for a more flexible API.
+
+5. **Modularity**: The separation between client and server allows for independent evolution of the frontend and backend.
+
+---
+
+### **REST vs. RESTful**
+
+- **REST** is the overarching architectural style, with a set of principles and guidelines for designing networked systems.
+- **RESTful** refers to a web service that adheres to the REST architectural principles. When an API is described as "RESTful," it follows REST conventions like using HTTP methods, statelessness, resource identification, etc.
+
+---
+
+### **Conclusion**
+
+A **RESTful API** is an API that adheres to the principles of REST, providing a way to interact with resources via standard HTTP methods like GET, POST, PUT, DELETE, etc. It is a scalable, simple, and widely-adopted way to design APIs for web services, allowing different clients (web, mobile, etc.) to communicate with the server in a standardized manner.
 ## 8 - Get one item
+```js
+app.get("/products/:produtId", (req, res) => {
+  const productID = parseInt(req.params.produtId);
 
+  const findIndex = products.findIndex((product) => product.id === productID);
+
+  if (isNaN(productID)) {
+    return res.status(400).send("Invalid product id");
+  }
+
+  if (findIndex === -1) {
+    return res.status(404).send("Product not found");
+  }
+
+  res.status(200).send(products[findIndex]);
+});
+```
 ## 9 - Auto restart server
+To enable **auto-restart** for a **Node.js** server, you can use either the **built-in watch mode** in **Node.js v22.6.0** or the popular tool **nodemon**. Both of these options allow the Node.js server to automatically restart whenever file changes are detected, which is extremely useful during development.
 
+### **1. Auto-Restart Server Using Node.js `--watch` Mode**
+
+**Node.js v22.6.0** introduced a built-in feature for auto-restarting the server when file changes are detected, using the `--watch` flag. This is a simpler and more lightweight solution compared to external tools like `nodemon`.
+
+#### **Example:**
+
+1. **Create a Simple Express Server**
+
+```bash
+mkdir auto-restart-example
+cd auto-restart-example
+npm init -y
+npm install express
+```
+
+Create a file called `server.js`:
+
+```js
+// server.js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+// Define a simple route
+app.get('/', (req, res) => {
+  res.send('Hello, world! Auto-restart with Node.js watch mode.');
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+```
+
+2. **Run the Server with Watch Mode:**
+
+```bash
+node --watch server.js
+```
+
+This command will start the server in **watch mode**, and it will automatically restart the server whenever changes are made to the `server.js` file.
+
+#### **How it Works:**
+- **`--watch` flag**: This tells Node.js to monitor the files in the current working directory for changes.
+- **Automatic restart**: Whenever a file is saved with changes, the server restarts automatically. For example, if you modify the message in the `res.send()` response, the server will restart and reflect the updated output.
+
+#### **Customizing Watch Behavior:**
+
+You can ignore certain directories or files from being watched, such as `node_modules` or test files, by using the `NODE_OPTIONS` environment variable:
+
+```bash
+NODE_OPTIONS='--watch-ignore-directory=**/node_modules/**' node --watch server.js
+```
+
+This will ignore the `node_modules` folder, which you typically don’t want to restart the server for when installing dependencies.
+
+### **2. Using `nodemon` for Auto-Restarting Node.js Servers**
+
+While the built-in **watch mode** in Node.js is a great solution, **`nodemon`** is a more popular and feature-rich tool for auto-restarting a Node.js server during development. `nodemon` monitors the entire project for file changes and automatically restarts the server when changes are detected.
+
+#### **Installing `nodemon`:**
+
+You can install `nodemon` globally or as a development dependency.
+
+- **Globally** (so you can use it for any project):
+
+```bash
+npm install -g nodemon
+```
+
+- **Locally (development dependency)**:
+
+```bash
+npm install nodemon --save-dev
+```
+
+#### **Example with `nodemon`:**
+
+1. **Create an Express Server (if not already created)**
+
+Create `server.js`:
+
+```js
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello from nodemon auto-restart!');
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
+```
+
+2. **Running the Server with `nodemon`:**
+
+If `nodemon` is installed globally, you can run the server like this:
+
+```bash
+nodemon server.js
+```
+
+If `nodemon` is installed as a local development dependency, you can modify your `package.json` to include a script that runs `nodemon`:
+
+```json
+{
+  "scripts": {
+    "dev": "nodemon server.js"
+  }
+}
+```
+
+Now you can start your server with:
+
+```bash
+npm run dev
+```
+
+#### **How `nodemon` Works:**
+- **Automatic monitoring**: `nodemon` automatically watches all files in the project directory and will restart the server whenever any file is changed.
+- **No need for additional configuration**: By default, `nodemon` watches `.js`, `.json`, and `.mjs` files.
+- **Customizable**: You can configure `nodemon` to watch additional file extensions, ignore certain files or directories, or change the restart delay.
+
+#### **Advanced `nodemon` Configuration:**
+
+You can create a `nodemon.json` configuration file to customize how `nodemon` behaves. Here’s an example `nodemon.json`:
+
+```json
+{
+  "watch": ["src"],
+  "ext": "js,json,ts",
+  "ignore": ["node_modules", "tests"],
+  "exec": "node --inspect server.js"
+}
+```
+
+- **`watch`**: Specifies directories or files to watch.
+- **`ext`**: Tells `nodemon` to watch specific file extensions (e.g., `.js`, `.json`, `.ts`).
+- **`ignore`**: Defines files or directories to ignore.
+- **`exec`**: Executes the command when a file change is detected (e.g., running the Node.js server with debugging enabled).
+
+#### **Command-line Options for `nodemon`:**
+
+You can pass options to `nodemon` directly from the command line:
+
+- **Watch additional files**:
+
+```bash
+nodemon --watch app.js --watch config.json
+```
+
+- **Ignore files**:
+
+```bash
+nodemon --ignore tests/
+```
+
+- **Change file extensions to watch**:
+
+```bash
+nodemon --ext js,json
+```
+
+---
+
+### **Comparison of Built-in Watch Mode vs. `nodemon`**
+
+| Feature                | Node.js Built-in Watch Mode                     | `nodemon`                                           |
+| ---------------------- | ----------------------------------------------- | --------------------------------------------------- |
+| Setup                  | Simple, just use `--watch`                      | Requires installation                               |
+| File Watching          | Watches `.js`, `.json`, `.mjs` files by default | Watches all project files                           |
+| Configuration          | Limited (via `NODE_OPTIONS`)                    | Highly configurable (`nodemon.json`)                |
+| Ignoring files/folders | Requires `NODE_OPTIONS`                         | Easy with `nodemon --ignore` flag or `nodemon.json` |
+| Extensibility          | Basic                                           | Supports custom extensions and execution commands   |
+
+### **Conclusion**
+
+Both **Node.js watch mode** and **nodemon** provide effective ways to auto-restart a Node.js server when files change, helping developers by reducing the manual restart overhead.
+
+- **Node.js built-in watch mode** is suitable for smaller projects or simpler setups, requiring minimal configuration.
+- **`nodemon`** offers more features and flexibility, making it more suitable for larger projects or more complex workflows.
+
+You can choose between the two based on the complexity of your project and your development needs.
 ## 10 - Create item
+```js
+app.post("/products", (req, res) => {
+  const { id, name, price } = req.body;
 
+  if (!id || !name || !price) {
+    return res.status(400).send("Invalid request");
+  }
+
+  const newProduct = {
+    id,
+    name,
+    price,
+  };
+
+  products.push(newProduct);
+
+  res.status(201).send(newProduct);
+});
+```
 ## 11 - Update item
+```js
 
+app.put("/products/:productId", (req, res) => {
+  const productId = parseInt(req.params.productId);
+  const { name, price } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).send("Invalid request");
+  }
+
+  const findIndex = products.findIndex((product) => product.id === productId);
+
+  if (findIndex === -1) {
+    return res.status(404).send("Product not found");
+  }
+
+  products[findIndex] = {
+    ...products[findIndex],
+    name,
+    price,
+  };
+
+  res.status(200).send(products[findIndex]);
+});
+```
 ## 12 - Delete item
+```js
+app.delete("/products/:productId", (req, res) => {
+  const productId = parseInt(req.params.productId);
 
+  const findIndex = products.findIndex((product) => product.id === productId);
+
+  if (findIndex === -1) {
+    return res.status(404).send("Product not found");
+  }
+
+  products.splice(findIndex, 1);
+
+  res.status(200).send("Product deleted successfully");
+});
+```
 ## 13 - Middleware
 
 ## 14 - Model View Controller (MVC)
