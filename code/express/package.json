@@ -1,0 +1,17 @@
+{
+  "name": "learn-express",
+  "version": "1.0.0",
+  "description": "sample app to learn express ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ccweerasinghe1994",
+  "license": "ISC",
+  "engines": {
+    "node": ">=21 <=22"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
